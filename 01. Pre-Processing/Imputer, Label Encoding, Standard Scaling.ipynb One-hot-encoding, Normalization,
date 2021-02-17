@@ -1,0 +1,3017 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "[실습]Ch03.sklearn_전처리 기본.ipynb",
+      "provenance": [],
+      "collapsed_sections": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "4m0FCvLtvwlU"
+      },
+      "source": [
+        "import numpy as np\n",
+        "import pandas as pd"
+      ],
+      "execution_count": 1,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "CWmwUbL6whW0"
+      },
+      "source": [
+        "train = pd.read_csv('https://bit.ly/fc-ml-titanic')"
+      ],
+      "execution_count": 2,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "GhC64cie0XAm",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 408
+        },
+        "outputId": "d9820b6c-b510-4652-888a-35fe0c326e73"
+      },
+      "source": [
+        "train.head()"
+      ],
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>PassengerId</th>\n",
+              "      <th>Survived</th>\n",
+              "      <th>Pclass</th>\n",
+              "      <th>Name</th>\n",
+              "      <th>Sex</th>\n",
+              "      <th>Age</th>\n",
+              "      <th>SibSp</th>\n",
+              "      <th>Parch</th>\n",
+              "      <th>Ticket</th>\n",
+              "      <th>Fare</th>\n",
+              "      <th>Cabin</th>\n",
+              "      <th>Embarked</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "      <td>3</td>\n",
+              "      <td>Braund, Mr. Owen Harris</td>\n",
+              "      <td>male</td>\n",
+              "      <td>22.0</td>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "      <td>A/5 21171</td>\n",
+              "      <td>7.2500</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>S</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>2</td>\n",
+              "      <td>1</td>\n",
+              "      <td>1</td>\n",
+              "      <td>Cumings, Mrs. John Bradley (Florence Briggs Th...</td>\n",
+              "      <td>female</td>\n",
+              "      <td>38.0</td>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "      <td>PC 17599</td>\n",
+              "      <td>71.2833</td>\n",
+              "      <td>C85</td>\n",
+              "      <td>C</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>3</td>\n",
+              "      <td>1</td>\n",
+              "      <td>3</td>\n",
+              "      <td>Heikkinen, Miss. Laina</td>\n",
+              "      <td>female</td>\n",
+              "      <td>26.0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>STON/O2. 3101282</td>\n",
+              "      <td>7.9250</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>S</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>4</td>\n",
+              "      <td>1</td>\n",
+              "      <td>1</td>\n",
+              "      <td>Futrelle, Mrs. Jacques Heath (Lily May Peel)</td>\n",
+              "      <td>female</td>\n",
+              "      <td>35.0</td>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "      <td>113803</td>\n",
+              "      <td>53.1000</td>\n",
+              "      <td>C123</td>\n",
+              "      <td>S</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>5</td>\n",
+              "      <td>0</td>\n",
+              "      <td>3</td>\n",
+              "      <td>Allen, Mr. William Henry</td>\n",
+              "      <td>male</td>\n",
+              "      <td>35.0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>373450</td>\n",
+              "      <td>8.0500</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>S</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   PassengerId  Survived  Pclass  ...     Fare Cabin  Embarked\n",
+              "0            1         0       3  ...   7.2500   NaN         S\n",
+              "1            2         1       1  ...  71.2833   C85         C\n",
+              "2            3         1       3  ...   7.9250   NaN         S\n",
+              "3            4         1       1  ...  53.1000  C123         S\n",
+              "4            5         0       3  ...   8.0500   NaN         S\n",
+              "\n",
+              "[5 rows x 12 columns]"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 3
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "xuUSnd2rxM75"
+      },
+      "source": [
+        "## 데이터 셋: 타이타닉 데이터셋 (출처: Kaggle.com)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "G7u9pKwtwiiR",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 408
+        },
+        "outputId": "43251bb1-7162-4f84-bbea-a35cc544dd66"
+      },
+      "source": [
+        "train.head()"
+      ],
+      "execution_count": 4,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>PassengerId</th>\n",
+              "      <th>Survived</th>\n",
+              "      <th>Pclass</th>\n",
+              "      <th>Name</th>\n",
+              "      <th>Sex</th>\n",
+              "      <th>Age</th>\n",
+              "      <th>SibSp</th>\n",
+              "      <th>Parch</th>\n",
+              "      <th>Ticket</th>\n",
+              "      <th>Fare</th>\n",
+              "      <th>Cabin</th>\n",
+              "      <th>Embarked</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "      <td>3</td>\n",
+              "      <td>Braund, Mr. Owen Harris</td>\n",
+              "      <td>male</td>\n",
+              "      <td>22.0</td>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "      <td>A/5 21171</td>\n",
+              "      <td>7.2500</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>S</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>2</td>\n",
+              "      <td>1</td>\n",
+              "      <td>1</td>\n",
+              "      <td>Cumings, Mrs. John Bradley (Florence Briggs Th...</td>\n",
+              "      <td>female</td>\n",
+              "      <td>38.0</td>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "      <td>PC 17599</td>\n",
+              "      <td>71.2833</td>\n",
+              "      <td>C85</td>\n",
+              "      <td>C</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>3</td>\n",
+              "      <td>1</td>\n",
+              "      <td>3</td>\n",
+              "      <td>Heikkinen, Miss. Laina</td>\n",
+              "      <td>female</td>\n",
+              "      <td>26.0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>STON/O2. 3101282</td>\n",
+              "      <td>7.9250</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>S</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>4</td>\n",
+              "      <td>1</td>\n",
+              "      <td>1</td>\n",
+              "      <td>Futrelle, Mrs. Jacques Heath (Lily May Peel)</td>\n",
+              "      <td>female</td>\n",
+              "      <td>35.0</td>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "      <td>113803</td>\n",
+              "      <td>53.1000</td>\n",
+              "      <td>C123</td>\n",
+              "      <td>S</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>5</td>\n",
+              "      <td>0</td>\n",
+              "      <td>3</td>\n",
+              "      <td>Allen, Mr. William Henry</td>\n",
+              "      <td>male</td>\n",
+              "      <td>35.0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>373450</td>\n",
+              "      <td>8.0500</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>S</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   PassengerId  Survived  Pclass  ...     Fare Cabin  Embarked\n",
+              "0            1         0       3  ...   7.2500   NaN         S\n",
+              "1            2         1       1  ...  71.2833   C85         C\n",
+              "2            3         1       3  ...   7.9250   NaN         S\n",
+              "3            4         1       1  ...  53.1000  C123         S\n",
+              "4            5         0       3  ...   8.0500   NaN         S\n",
+              "\n",
+              "[5 rows x 12 columns]"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 4
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Ukcki232wmDh"
+      },
+      "source": [
+        "* PassengerId: 승객 아이디\n",
+        "* Survived: 생존 여부, 1: 생존, 0: 사망\n",
+        "* Pclass: 등급\n",
+        "* Name: 성함\n",
+        "* Sex: 성별\n",
+        "* Age: 나이\n",
+        "* SibSp: 형제, 자매, 배우자 수\n",
+        "* Parch: 부모, 자식 수\n",
+        "* Ticket: 티켓번호\n",
+        "* Fare: 요즘\n",
+        "* Cabin: 좌석번호\n",
+        "* Embarked: 탑승 항구"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Z0qwUVkjWxw2"
+      },
+      "source": [
+        "## 전처리: train / validation 세트 나누기"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "1gBnXghxXruX"
+      },
+      "source": [
+        "1. 먼저, feature 와 label을 정의\n",
+        "2. feature / label을 정의했으면, 적절한 비율로 train / validation set을 나눈다."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "XU_Vm-JAX1hZ"
+      },
+      "source": [
+        "feature = [\n",
+        "      'Pclass', 'Sex', 'Age', 'Fare'   \n",
+        "]"
+      ],
+      "execution_count": 5,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "R3k2pLtAX1QW"
+      },
+      "source": [
+        "label = [\n",
+        "      'Survived'\n",
+        "]"
+      ],
+      "execution_count": 6,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "pihzueRiYBMv",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 204
+        },
+        "outputId": "d92798c9-c490-462a-c7f7-2100d433e7ce"
+      },
+      "source": [
+        "train[feature].head()"
+      ],
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>Pclass</th>\n",
+              "      <th>Sex</th>\n",
+              "      <th>Age</th>\n",
+              "      <th>Fare</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>3</td>\n",
+              "      <td>male</td>\n",
+              "      <td>22.0</td>\n",
+              "      <td>7.2500</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>1</td>\n",
+              "      <td>female</td>\n",
+              "      <td>38.0</td>\n",
+              "      <td>71.2833</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>3</td>\n",
+              "      <td>female</td>\n",
+              "      <td>26.0</td>\n",
+              "      <td>7.9250</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>1</td>\n",
+              "      <td>female</td>\n",
+              "      <td>35.0</td>\n",
+              "      <td>53.1000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>3</td>\n",
+              "      <td>male</td>\n",
+              "      <td>35.0</td>\n",
+              "      <td>8.0500</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   Pclass     Sex   Age     Fare\n",
+              "0       3    male  22.0   7.2500\n",
+              "1       1  female  38.0  71.2833\n",
+              "2       3  female  26.0   7.9250\n",
+              "3       1  female  35.0  53.1000\n",
+              "4       3    male  35.0   8.0500"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 7
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "96YduW_DYA8T",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 204
+        },
+        "outputId": "c21c6a5d-26da-45d3-f95c-d0d70e8d4bb2"
+      },
+      "source": [
+        "train[label].head()"
+      ],
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>Survived</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>1</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>1</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>1</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   Survived\n",
+              "0         0\n",
+              "1         1\n",
+              "2         1\n",
+              "3         1\n",
+              "4         0"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 8
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "lsYkvBRBWxfb"
+      },
+      "source": [
+        "from sklearn.model_selection import train_test_split"
+      ],
+      "execution_count": 9,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "w6kpIYhWYK2v"
+      },
+      "source": [
+        "* **test_size**: validation set에 할당할 비율 (20% -> 0.2)\n",
+        "* **shuffle**: 셔플 옵션 (기본 True)\n",
+        "* **random_state**: 랜덤 시드값"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "8NWhxyA7YeJQ"
+      },
+      "source": [
+        "return받는 데이터의 순서가 중요하다."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "6boSgaQOW6E4"
+      },
+      "source": [
+        "x_train, x_valid, y_train, y_valid = train_test_split(train[feature], train[label], test_size=0.2, shuffle=True, random_state=30)"
+      ],
+      "execution_count": 10,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "6eyx-uhZW53W",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "34b98dcf-9d7b-4be0-a893-c0363937499f"
+      },
+      "source": [
+        "x_train.shape, y_train.shape"
+      ],
+      "execution_count": 11,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "((712, 4), (712, 1))"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 11
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "vKSe2CwbW5ml",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "3ec304ff-80e9-4706-c2e4-330614dd471f"
+      },
+      "source": [
+        "x_valid.shape, y_valid.shape"
+      ],
+      "execution_count": 12,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "((179, 4), (179, 1))"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 12
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "aZI4o9OyxZGo"
+      },
+      "source": [
+        "## 전처리: 결측치"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "eLTIlXc71vUO",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "64ba6863-05f6-4c46-9d63-ea354ebfaf5b"
+      },
+      "source": [
+        "train.info()"
+      ],
+      "execution_count": 14,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "<class 'pandas.core.frame.DataFrame'>\n",
+            "RangeIndex: 891 entries, 0 to 890\n",
+            "Data columns (total 12 columns):\n",
+            " #   Column       Non-Null Count  Dtype  \n",
+            "---  ------       --------------  -----  \n",
+            " 0   PassengerId  891 non-null    int64  \n",
+            " 1   Survived     891 non-null    int64  \n",
+            " 2   Pclass       891 non-null    int64  \n",
+            " 3   Name         891 non-null    object \n",
+            " 4   Sex          891 non-null    object \n",
+            " 5   Age          714 non-null    float64\n",
+            " 6   SibSp        891 non-null    int64  \n",
+            " 7   Parch        891 non-null    int64  \n",
+            " 8   Ticket       891 non-null    object \n",
+            " 9   Fare         891 non-null    float64\n",
+            " 10  Cabin        204 non-null    object \n",
+            " 11  Embarked     889 non-null    object \n",
+            "dtypes: float64(2), int64(5), object(5)\n",
+            "memory usage: 83.7+ KB\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "vcUMWx2b1nPl"
+      },
+      "source": [
+        "결측치를 확인하는 방법은 pandas의 **isnull()** \n",
+        "\n",
+        "그리고 합계를 구하는 sum()을 통해 한 눈에 확인할 수 있다."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "mWIoNp631eqd",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "1d1f3db2-5b19-4919-d707-fc26d35c87e1"
+      },
+      "source": [
+        "train.isnull().sum()"
+      ],
+      "execution_count": 15,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "PassengerId      0\n",
+              "Survived         0\n",
+              "Pclass           0\n",
+              "Name             0\n",
+              "Sex              0\n",
+              "Age            177\n",
+              "SibSp            0\n",
+              "Parch            0\n",
+              "Ticket           0\n",
+              "Fare             0\n",
+              "Cabin          687\n",
+              "Embarked         2\n",
+              "dtype: int64"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 15
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "qw2x_X_X12oG"
+      },
+      "source": [
+        "개별 column의 결측치에 대하여 확인하는 방법은 다음과 같습니다."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "wrz5kTeuxjcA",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "d1a8696b-4b90-40cc-bf95-832913a17c21"
+      },
+      "source": [
+        "train['Age'].isnull().sum()"
+      ],
+      "execution_count": 16,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "177"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 16
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "imJ5si6qRDki"
+      },
+      "source": [
+        "[Impute 도큐먼트](https://scikit-learn.org/stable/modules/impute.html)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "EZSpyI1U2D8n"
+      },
+      "source": [
+        "### 1. 수치형 (Numerical Column) 데이터에 대한 결측치 처리"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "zJIIU-1SSkow",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "9927653b-34e0-4563-fb0f-55021dda84cd"
+      },
+      "source": [
+        "train['Age'].fillna(0).describe()"
+      ],
+      "execution_count": 17,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "count    891.000000\n",
+              "mean      23.799293\n",
+              "std       17.596074\n",
+              "min        0.000000\n",
+              "25%        6.000000\n",
+              "50%       24.000000\n",
+              "75%       35.000000\n",
+              "max       80.000000\n",
+              "Name: Age, dtype: float64"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 17
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "OyEJxd_USYV5",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "7d1d7f19-6405-437d-dac0-39fa63700c03"
+      },
+      "source": [
+        "train['Age'].fillna(train['Age'].mean()).describe()"
+      ],
+      "execution_count": 18,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "count    891.000000\n",
+              "mean      29.699118\n",
+              "std       13.002015\n",
+              "min        0.420000\n",
+              "25%       22.000000\n",
+              "50%       29.699118\n",
+              "75%       35.000000\n",
+              "max       80.000000\n",
+              "Name: Age, dtype: float64"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 18
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "FwfWolTfSaaw"
+      },
+      "source": [
+        "imputer: 2개 이상의 column을 한 번에 처리할 때"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Aj_gtg0iSZSQ"
+      },
+      "source": [
+        "from sklearn.impute import SimpleImputer"
+      ],
+      "execution_count": 19,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ITdEDze32MAu"
+      },
+      "source": [
+        "imputer = SimpleImputer(strategy='mean')"
+      ],
+      "execution_count": 20,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "V7bTVHE31JZo"
+      },
+      "source": [
+        "fit() 을 통해 결측치에 대한 학습을 진행"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "NtLzqFsa0U6Q",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "0e4081b8-9b0d-43d0-ec86-bc806a163002"
+      },
+      "source": [
+        "\r\n",
+        "imputer.fit(train[['Age', 'Pclass']])"
+      ],
+      "execution_count": 21,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "SimpleImputer(add_indicator=False, copy=True, fill_value=None,\n",
+              "              missing_values=nan, strategy='mean', verbose=0)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 21
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "JoguTfi_1PvW"
+      },
+      "source": [
+        "transform() 은 실제 결측치에 대한 처리를 해주는 함수"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "qVNv7hgY0aBP"
+      },
+      "source": [
+        "result = imputer.transform(train[['Age', 'Pclass']])"
+      ],
+      "execution_count": 22,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "PZWxCcf05txL",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "2ea2303d-acd1-4932-8c98-f0ca8f99c282"
+      },
+      "source": [
+        "result"
+      ],
+      "execution_count": 23,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([[22.        ,  3.        ],\n",
+              "       [38.        ,  1.        ],\n",
+              "       [26.        ,  3.        ],\n",
+              "       ...,\n",
+              "       [29.69911765,  3.        ],\n",
+              "       [26.        ,  1.        ],\n",
+              "       [32.        ,  3.        ]])"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 23
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Xhb1zZWH0tj4"
+      },
+      "source": [
+        "train[['Age', 'Pclass']] = result"
+      ],
+      "execution_count": 24,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "D6eVOyyE0w_v",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "c316c253-58f9-4cbf-9c89-555f6f7485e0"
+      },
+      "source": [
+        "train[['Age', 'Pclass']].isnull().sum()"
+      ],
+      "execution_count": 25,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "Age       0\n",
+              "Pclass    0\n",
+              "dtype: int64"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 25
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "i_xJh7Wd53B3",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 297
+        },
+        "outputId": "83195151-9699-42b9-d068-575ab657e1ae"
+      },
+      "source": [
+        "train[['Age', 'Pclass']].describe()"
+      ],
+      "execution_count": 26,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>Age</th>\n",
+              "      <th>Pclass</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>count</th>\n",
+              "      <td>891.000000</td>\n",
+              "      <td>891.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>mean</th>\n",
+              "      <td>29.699118</td>\n",
+              "      <td>2.308642</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>std</th>\n",
+              "      <td>13.002015</td>\n",
+              "      <td>0.836071</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>min</th>\n",
+              "      <td>0.420000</td>\n",
+              "      <td>1.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>25%</th>\n",
+              "      <td>22.000000</td>\n",
+              "      <td>2.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>50%</th>\n",
+              "      <td>29.699118</td>\n",
+              "      <td>3.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>75%</th>\n",
+              "      <td>35.000000</td>\n",
+              "      <td>3.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>max</th>\n",
+              "      <td>80.000000</td>\n",
+              "      <td>3.000000</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "              Age      Pclass\n",
+              "count  891.000000  891.000000\n",
+              "mean    29.699118    2.308642\n",
+              "std     13.002015    0.836071\n",
+              "min      0.420000    1.000000\n",
+              "25%     22.000000    2.000000\n",
+              "50%     29.699118    3.000000\n",
+              "75%     35.000000    3.000000\n",
+              "max     80.000000    3.000000"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 26
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "H-paZSGL05Te"
+      },
+      "source": [
+        "fit_transform()은 fit()과 transform()을 한 번에 해주는 함수 입니다."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "YX5sZoT01ZmA"
+      },
+      "source": [
+        "train = pd.read_csv('https://bit.ly/fc-ml-titanic')"
+      ],
+      "execution_count": 27,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "7IhAQjG61b_3",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "9c2c9846-db40-4fd0-d8dc-044445deabe1"
+      },
+      "source": [
+        "train[['Age', 'Pclass']].isnull().sum()"
+      ],
+      "execution_count": 28,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "Age       177\n",
+              "Pclass      0\n",
+              "dtype: int64"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 28
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "nemH060SQWq-"
+      },
+      "source": [
+        "imputer = SimpleImputer(strategy='median')"
+      ],
+      "execution_count": 29,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "DIlZOOYEQiVV"
+      },
+      "source": [
+        "result = imputer.fit_transform(train[['Age', 'Pclass']])"
+      ],
+      "execution_count": 30,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "nfwvX-pRQmLB"
+      },
+      "source": [
+        "train[['Age', 'Pclass']] = result"
+      ],
+      "execution_count": 31,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "G4oRju_0QqV5",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "a0654c2b-7880-46f3-f243-db0ae493936d"
+      },
+      "source": [
+        "train[['Age', 'Pclass']].isnull().sum()"
+      ],
+      "execution_count": 32,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "Age       0\n",
+              "Pclass    0\n",
+              "dtype: int64"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 32
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "hFNsYsQ76IVJ",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 297
+        },
+        "outputId": "805263c7-1220-428c-f36f-80361702c77f"
+      },
+      "source": [
+        "train[['Age', 'Pclass']].describe()"
+      ],
+      "execution_count": 33,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>Age</th>\n",
+              "      <th>Pclass</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>count</th>\n",
+              "      <td>891.000000</td>\n",
+              "      <td>891.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>mean</th>\n",
+              "      <td>29.361582</td>\n",
+              "      <td>2.308642</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>std</th>\n",
+              "      <td>13.019697</td>\n",
+              "      <td>0.836071</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>min</th>\n",
+              "      <td>0.420000</td>\n",
+              "      <td>1.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>25%</th>\n",
+              "      <td>22.000000</td>\n",
+              "      <td>2.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>50%</th>\n",
+              "      <td>28.000000</td>\n",
+              "      <td>3.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>75%</th>\n",
+              "      <td>35.000000</td>\n",
+              "      <td>3.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>max</th>\n",
+              "      <td>80.000000</td>\n",
+              "      <td>3.000000</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "              Age      Pclass\n",
+              "count  891.000000  891.000000\n",
+              "mean    29.361582    2.308642\n",
+              "std     13.019697    0.836071\n",
+              "min      0.420000    1.000000\n",
+              "25%     22.000000    2.000000\n",
+              "50%     28.000000    3.000000\n",
+              "75%     35.000000    3.000000\n",
+              "max     80.000000    3.000000"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 33
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "CJCiPKWEQtTI"
+      },
+      "source": [
+        "### 2.  (Categorical Column) 데이터에 대한 결측치 처리"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "B-2CzV93Ry96"
+      },
+      "source": [
+        "train = pd.read_csv('https://bit.ly/fc-ml-titanic')"
+      ],
+      "execution_count": 34,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "sGpADfvYSVL5"
+      },
+      "source": [
+        "1개의 column을 처리하는 경우"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "1OSPpu8_SNsB",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "23a3903c-a77c-4749-99d2-0412cb1573ba"
+      },
+      "source": [
+        "train['Embarked'].fillna('S')"
+      ],
+      "execution_count": 35,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0      S\n",
+              "1      C\n",
+              "2      S\n",
+              "3      S\n",
+              "4      S\n",
+              "      ..\n",
+              "886    S\n",
+              "887    S\n",
+              "888    S\n",
+              "889    C\n",
+              "890    Q\n",
+              "Name: Embarked, Length: 891, dtype: object"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 35
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "NH1tGBFwSP6o"
+      },
+      "source": [
+        "Imputer를 사용하는 경우 : 2개 이상의 column을 처리할 때"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "oiMj03qnRKQZ"
+      },
+      "source": [
+        "imputer = SimpleImputer(strategy='most_frequent')"
+      ],
+      "execution_count": 36,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "INx9rXkjRWSe"
+      },
+      "source": [
+        "result = imputer.fit_transform(train[['Embarked', 'Cabin']])"
+      ],
+      "execution_count": 37,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "1wzK9n8hnPE4"
+      },
+      "source": [
+        "train[['Embarked', 'Cabin']] = result"
+      ],
+      "execution_count": 38,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "eWrCCpXP6vRh",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "5ede69ab-c6aa-4624-d1f1-fd7d0c1a9310"
+      },
+      "source": [
+        "train[['Embarked', 'Cabin']].isnull().sum()"
+      ],
+      "execution_count": 39,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "Embarked    0\n",
+              "Cabin       0\n",
+              "dtype: int64"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 39
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "i5wuSMlSnPMi"
+      },
+      "source": [
+        "## Label Encoding : 문자(categorical)를 수치(numerical)로 변환"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "_K-zLb8nnPXF"
+      },
+      "source": [
+        "학습을 위해서 모든 문자로된 **데이터는 수치로 변환**하여야 합니다."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "epqQ3b99n9Qn",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "201fd60c-7133-469b-b332-21ad958e76a6"
+      },
+      "source": [
+        "train.info()"
+      ],
+      "execution_count": 40,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "<class 'pandas.core.frame.DataFrame'>\n",
+            "RangeIndex: 891 entries, 0 to 890\n",
+            "Data columns (total 12 columns):\n",
+            " #   Column       Non-Null Count  Dtype  \n",
+            "---  ------       --------------  -----  \n",
+            " 0   PassengerId  891 non-null    int64  \n",
+            " 1   Survived     891 non-null    int64  \n",
+            " 2   Pclass       891 non-null    int64  \n",
+            " 3   Name         891 non-null    object \n",
+            " 4   Sex          891 non-null    object \n",
+            " 5   Age          714 non-null    float64\n",
+            " 6   SibSp        891 non-null    int64  \n",
+            " 7   Parch        891 non-null    int64  \n",
+            " 8   Ticket       891 non-null    object \n",
+            " 9   Fare         891 non-null    float64\n",
+            " 10  Cabin        891 non-null    object \n",
+            " 11  Embarked     891 non-null    object \n",
+            "dtypes: float64(2), int64(5), object(5)\n",
+            "memory usage: 83.7+ KB\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ZlnzTy32oIcM"
+      },
+      "source": [
+        "def convert(data):\n",
+        "    if data == 'male':\n",
+        "      return 1\n",
+        "    elif data == 'female':\n",
+        "      return 0"
+      ],
+      "execution_count": 43,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "AnMUua47BGMZ",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "f8d0822e-1344-4b92-d077-197ab9eadf2b"
+      },
+      "source": [
+        "train['Sex'].value_counts()"
+      ],
+      "execution_count": 44,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "male      577\n",
+              "female    314\n",
+              "Name: Sex, dtype: int64"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 44
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "5z__wjzvn--F",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "fc7b3be3-a916-448b-dc8c-6c28d3b1c607"
+      },
+      "source": [
+        "train['Sex'].apply(convert)"
+      ],
+      "execution_count": 45,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0      1\n",
+              "1      0\n",
+              "2      0\n",
+              "3      0\n",
+              "4      1\n",
+              "      ..\n",
+              "886    1\n",
+              "887    0\n",
+              "888    0\n",
+              "889    1\n",
+              "890    1\n",
+              "Name: Sex, Length: 891, dtype: int64"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 45
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "nAWX0vDZoDrk"
+      },
+      "source": [
+        "from sklearn.preprocessing import LabelEncoder"
+      ],
+      "execution_count": 46,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "T3zSNcjeoZSB"
+      },
+      "source": [
+        "le = LabelEncoder()"
+      ],
+      "execution_count": 47,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "wgfjeuTsoboo"
+      },
+      "source": [
+        "train['Sex_num'] = le.fit_transform(train['Sex'])"
+      ],
+      "execution_count": 48,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ktbcl24bBcRA",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "da92c048-3653-48fa-8a5f-4e7fe4799b1b"
+      },
+      "source": [
+        "train['Sex_num'].value_counts()"
+      ],
+      "execution_count": 49,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "1    577\n",
+              "0    314\n",
+              "Name: Sex_num, dtype: int64"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 49
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "PUgKXpkDpClf",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "c4a83d01-c040-44ef-c041-12699c6f2845"
+      },
+      "source": [
+        "le.classes_"
+      ],
+      "execution_count": 50,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array(['female', 'male'], dtype=object)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 50
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "XfyAsbd_pWVu",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "b15d6400-c338-4542-e923-8025c48319d9"
+      },
+      "source": [
+        "le.inverse_transform([0,1,1,0,0,1,1])"
+      ],
+      "execution_count": 51,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array(['female', 'male', 'male', 'female', 'female', 'male', 'male'],\n",
+              "      dtype=object)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 51
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "_s2W4nJgrPsL"
+      },
+      "source": [
+        "NaN 값이 포함되어 있다면, `LabelEncoder`가 정상 동작하지 않는다."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "pkXCJuZRpa8A",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "8e95b7fd-039a-4ba2-b8ff-13ccb30542b9"
+      },
+      "source": [
+        "le.fit_transform(train['Embarked'])"
+      ],
+      "execution_count": 52,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([2, 0, 2, 2, 2, 1, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 1, 2, 2, 0, 2, 2,\n",
+              "       1, 2, 2, 2, 0, 2, 1, 2, 0, 0, 1, 2, 0, 2, 0, 2, 2, 0, 2, 2, 0, 0,\n",
+              "       1, 2, 1, 1, 0, 2, 2, 2, 0, 2, 0, 2, 2, 0, 2, 2, 0, 2, 2, 2, 0, 0,\n",
+              "       2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2,\n",
+              "       2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,\n",
+              "       2, 0, 2, 2, 0, 2, 1, 2, 0, 2, 2, 2, 0, 2, 2, 0, 1, 2, 0, 2, 0, 2,\n",
+              "       2, 2, 2, 0, 2, 2, 2, 0, 0, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,\n",
+              "       2, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 0, 2,\n",
+              "       2, 0, 2, 2, 2, 0, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 0, 0, 1, 2,\n",
+              "       1, 2, 2, 2, 2, 0, 2, 2, 2, 0, 1, 0, 2, 2, 2, 2, 1, 0, 2, 2, 0, 2,\n",
+              "       2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 1,\n",
+              "       2, 2, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 0, 2, 1, 2, 2, 2,\n",
+              "       1, 2, 2, 2, 2, 2, 2, 2, 2, 0, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 0,\n",
+              "       2, 2, 2, 1, 2, 0, 0, 2, 2, 0, 0, 2, 2, 0, 1, 1, 2, 1, 2, 2, 0, 0,\n",
+              "       0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 1, 2, 2, 0, 2, 2, 2, 0,\n",
+              "       1, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,\n",
+              "       0, 2, 0, 2, 2, 2, 1, 1, 2, 0, 0, 2, 1, 2, 0, 0, 1, 0, 0, 2, 2, 0,\n",
+              "       2, 0, 2, 0, 0, 2, 0, 0, 2, 2, 2, 2, 2, 2, 1, 0, 2, 2, 2, 0, 2, 2,\n",
+              "       2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2,\n",
+              "       2, 2, 0, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,\n",
+              "       2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 0, 0, 2, 0, 2, 2, 2, 1, 2, 2,\n",
+              "       2, 2, 2, 2, 2, 2, 1, 0, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,\n",
+              "       0, 2, 2, 0, 2, 2, 2, 2, 2, 0, 2, 0, 0, 2, 2, 2, 2, 1, 1, 2, 2, 0,\n",
+              "       2, 2, 2, 2, 1, 2, 2, 0, 2, 2, 2, 1, 2, 2, 2, 2, 0, 0, 0, 1, 2, 2,\n",
+              "       2, 2, 2, 0, 0, 0, 2, 2, 2, 0, 2, 0, 2, 2, 2, 2, 0, 2, 2, 0, 2, 2,\n",
+              "       0, 2, 1, 0, 2, 2, 0, 0, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2,\n",
+              "       2, 1, 2, 2, 2, 2, 0, 2, 2, 0, 2, 0, 0, 2, 2, 0, 2, 2, 2, 0, 2, 1,\n",
+              "       2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 0, 2, 2, 2, 0, 2, 2, 2, 1, 1, 2, 2,\n",
+              "       2, 2, 2, 2, 0, 2, 0, 2, 2, 2, 1, 2, 2, 1, 2, 2, 0, 2, 2, 2, 2, 2,\n",
+              "       2, 2, 2, 0, 2, 2, 0, 0, 2, 0, 2, 2, 2, 2, 2, 1, 1, 2, 2, 1, 2, 0,\n",
+              "       2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 1, 0,\n",
+              "       2, 2, 2, 0, 2, 2, 2, 2, 2, 0, 2, 0, 2, 2, 2, 1, 0, 2, 0, 2, 0, 1,\n",
+              "       2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 0, 2, 1, 2, 2, 2, 2, 2, 2, 2,\n",
+              "       2, 1, 2, 2, 2, 0, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2,\n",
+              "       2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 0, 1, 1, 2,\n",
+              "       2, 2, 2, 0, 2, 2, 1, 2, 1, 2, 0, 2, 2, 2, 2, 2, 2, 1, 2, 0, 1, 2,\n",
+              "       2, 0, 2, 2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,\n",
+              "       2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 1, 2, 0, 2, 0, 2, 2, 0,\n",
+              "       2, 2, 2, 0, 2, 2, 0, 0, 2, 2, 2, 0, 2, 0, 2, 2, 0, 2, 2, 2, 2, 2,\n",
+              "       0, 0, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 0,\n",
+              "       2, 2, 2, 2, 2, 1, 2, 2, 2, 0, 1])"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 52
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "aMzvi1lppihM"
+      },
+      "source": [
+        "train['Embarked'] = train['Embarked'].fillna('S')"
+      ],
+      "execution_count": 53,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "pWKb0q0Pq4aj",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "b863a857-aa74-4c7e-caa3-82e9388c2f63"
+      },
+      "source": [
+        "le.fit_transform(train['Embarked'])"
+      ],
+      "execution_count": 54,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([2, 0, 2, 2, 2, 1, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 1, 2, 2, 0, 2, 2,\n",
+              "       1, 2, 2, 2, 0, 2, 1, 2, 0, 0, 1, 2, 0, 2, 0, 2, 2, 0, 2, 2, 0, 0,\n",
+              "       1, 2, 1, 1, 0, 2, 2, 2, 0, 2, 0, 2, 2, 0, 2, 2, 0, 2, 2, 2, 0, 0,\n",
+              "       2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2,\n",
+              "       2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,\n",
+              "       2, 0, 2, 2, 0, 2, 1, 2, 0, 2, 2, 2, 0, 2, 2, 0, 1, 2, 0, 2, 0, 2,\n",
+              "       2, 2, 2, 0, 2, 2, 2, 0, 0, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,\n",
+              "       2, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 0, 2,\n",
+              "       2, 0, 2, 2, 2, 0, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 0, 0, 1, 2,\n",
+              "       1, 2, 2, 2, 2, 0, 2, 2, 2, 0, 1, 0, 2, 2, 2, 2, 1, 0, 2, 2, 0, 2,\n",
+              "       2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 1,\n",
+              "       2, 2, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 0, 2, 1, 2, 2, 2,\n",
+              "       1, 2, 2, 2, 2, 2, 2, 2, 2, 0, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 0,\n",
+              "       2, 2, 2, 1, 2, 0, 0, 2, 2, 0, 0, 2, 2, 0, 1, 1, 2, 1, 2, 2, 0, 0,\n",
+              "       0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 1, 2, 2, 0, 2, 2, 2, 0,\n",
+              "       1, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,\n",
+              "       0, 2, 0, 2, 2, 2, 1, 1, 2, 0, 0, 2, 1, 2, 0, 0, 1, 0, 0, 2, 2, 0,\n",
+              "       2, 0, 2, 0, 0, 2, 0, 0, 2, 2, 2, 2, 2, 2, 1, 0, 2, 2, 2, 0, 2, 2,\n",
+              "       2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2,\n",
+              "       2, 2, 0, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,\n",
+              "       2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 0, 0, 2, 0, 2, 2, 2, 1, 2, 2,\n",
+              "       2, 2, 2, 2, 2, 2, 1, 0, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,\n",
+              "       0, 2, 2, 0, 2, 2, 2, 2, 2, 0, 2, 0, 0, 2, 2, 2, 2, 1, 1, 2, 2, 0,\n",
+              "       2, 2, 2, 2, 1, 2, 2, 0, 2, 2, 2, 1, 2, 2, 2, 2, 0, 0, 0, 1, 2, 2,\n",
+              "       2, 2, 2, 0, 0, 0, 2, 2, 2, 0, 2, 0, 2, 2, 2, 2, 0, 2, 2, 0, 2, 2,\n",
+              "       0, 2, 1, 0, 2, 2, 0, 0, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2,\n",
+              "       2, 1, 2, 2, 2, 2, 0, 2, 2, 0, 2, 0, 0, 2, 2, 0, 2, 2, 2, 0, 2, 1,\n",
+              "       2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 0, 2, 2, 2, 0, 2, 2, 2, 1, 1, 2, 2,\n",
+              "       2, 2, 2, 2, 0, 2, 0, 2, 2, 2, 1, 2, 2, 1, 2, 2, 0, 2, 2, 2, 2, 2,\n",
+              "       2, 2, 2, 0, 2, 2, 0, 0, 2, 0, 2, 2, 2, 2, 2, 1, 1, 2, 2, 1, 2, 0,\n",
+              "       2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 1, 0,\n",
+              "       2, 2, 2, 0, 2, 2, 2, 2, 2, 0, 2, 0, 2, 2, 2, 1, 0, 2, 0, 2, 0, 1,\n",
+              "       2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 0, 2, 1, 2, 2, 2, 2, 2, 2, 2,\n",
+              "       2, 1, 2, 2, 2, 0, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2,\n",
+              "       2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 0, 1, 1, 2,\n",
+              "       2, 2, 2, 0, 2, 2, 1, 2, 1, 2, 0, 2, 2, 2, 2, 2, 2, 1, 2, 0, 1, 2,\n",
+              "       2, 0, 2, 2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,\n",
+              "       2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 1, 2, 0, 2, 0, 2, 2, 0,\n",
+              "       2, 2, 2, 0, 2, 2, 0, 0, 2, 2, 2, 0, 2, 0, 2, 2, 0, 2, 2, 2, 2, 2,\n",
+              "       0, 0, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 0,\n",
+              "       2, 2, 2, 2, 2, 1, 2, 2, 2, 0, 1])"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 54
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "IQfLuikqrfw_"
+      },
+      "source": [
+        "## 원 핫 인코딩 (One Hot Encoding)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "_My5vfT3rh3U"
+      },
+      "source": [
+        "train = pd.read_csv('https://bit.ly/fc-ml-titanic')"
+      ],
+      "execution_count": 55,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "8efamaLQrs8A",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 408
+        },
+        "outputId": "782cbd98-af23-4bc5-88d8-9bb0ade5069f"
+      },
+      "source": [
+        "train.head()"
+      ],
+      "execution_count": 56,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>PassengerId</th>\n",
+              "      <th>Survived</th>\n",
+              "      <th>Pclass</th>\n",
+              "      <th>Name</th>\n",
+              "      <th>Sex</th>\n",
+              "      <th>Age</th>\n",
+              "      <th>SibSp</th>\n",
+              "      <th>Parch</th>\n",
+              "      <th>Ticket</th>\n",
+              "      <th>Fare</th>\n",
+              "      <th>Cabin</th>\n",
+              "      <th>Embarked</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "      <td>3</td>\n",
+              "      <td>Braund, Mr. Owen Harris</td>\n",
+              "      <td>male</td>\n",
+              "      <td>22.0</td>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "      <td>A/5 21171</td>\n",
+              "      <td>7.2500</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>S</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>2</td>\n",
+              "      <td>1</td>\n",
+              "      <td>1</td>\n",
+              "      <td>Cumings, Mrs. John Bradley (Florence Briggs Th...</td>\n",
+              "      <td>female</td>\n",
+              "      <td>38.0</td>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "      <td>PC 17599</td>\n",
+              "      <td>71.2833</td>\n",
+              "      <td>C85</td>\n",
+              "      <td>C</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>3</td>\n",
+              "      <td>1</td>\n",
+              "      <td>3</td>\n",
+              "      <td>Heikkinen, Miss. Laina</td>\n",
+              "      <td>female</td>\n",
+              "      <td>26.0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>STON/O2. 3101282</td>\n",
+              "      <td>7.9250</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>S</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>4</td>\n",
+              "      <td>1</td>\n",
+              "      <td>1</td>\n",
+              "      <td>Futrelle, Mrs. Jacques Heath (Lily May Peel)</td>\n",
+              "      <td>female</td>\n",
+              "      <td>35.0</td>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "      <td>113803</td>\n",
+              "      <td>53.1000</td>\n",
+              "      <td>C123</td>\n",
+              "      <td>S</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>5</td>\n",
+              "      <td>0</td>\n",
+              "      <td>3</td>\n",
+              "      <td>Allen, Mr. William Henry</td>\n",
+              "      <td>male</td>\n",
+              "      <td>35.0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>373450</td>\n",
+              "      <td>8.0500</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>S</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   PassengerId  Survived  Pclass  ...     Fare Cabin  Embarked\n",
+              "0            1         0       3  ...   7.2500   NaN         S\n",
+              "1            2         1       1  ...  71.2833   C85         C\n",
+              "2            3         1       3  ...   7.9250   NaN         S\n",
+              "3            4         1       1  ...  53.1000  C123         S\n",
+              "4            5         0       3  ...   8.0500   NaN         S\n",
+              "\n",
+              "[5 rows x 12 columns]"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 56
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "2EK70txMryLt"
+      },
+      "source": [
+        "`Embarked`를 살펴보자"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "bd_c0Aqfr3MC",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "7655e992-e782-4b93-e84b-5afa2570f02b"
+      },
+      "source": [
+        "train['Embarked'].value_counts()"
+      ],
+      "execution_count": 57,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "S    644\n",
+              "C    168\n",
+              "Q     77\n",
+              "Name: Embarked, dtype: int64"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 57
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "fiGpbVuir4vM"
+      },
+      "source": [
+        "train['Embarked'] = train['Embarked'].fillna('S')"
+      ],
+      "execution_count": 58,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "NSaVkLeICSVf",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "c577afc1-7e40-4ead-e4cd-3bd2768d7230"
+      },
+      "source": [
+        "train['Embarked'].value_counts()"
+      ],
+      "execution_count": 59,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "S    646\n",
+              "C    168\n",
+              "Q     77\n",
+              "Name: Embarked, dtype: int64"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 59
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ZEitD4i5sE5u"
+      },
+      "source": [
+        "train['Embarked_num'] = LabelEncoder().fit_transform(train['Embarked'])"
+      ],
+      "execution_count": 60,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "n5UsLwbysKB6",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "c8277473-fc1d-4909-c872-133ca9aa3e65"
+      },
+      "source": [
+        "train['Embarked_num'].value_counts()"
+      ],
+      "execution_count": 61,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "2    646\n",
+              "0    168\n",
+              "1     77\n",
+              "Name: Embarked_num, dtype: int64"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 61
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Tih7s6UzsS0K"
+      },
+      "source": [
+        "Embarked는 탑승 항구의 이니셜을 나타냈다. \n",
+        "\n",
+        "그런데, 이전에는 `LabelEncoder`를 통해서 수치형으로 변환해주었다.\n",
+        "\n",
+        "하지만, 이대로 데이터를 기계학습을 시키면, 기계는 데이터 안에서 관계를 학습한다."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "8LdawQ_NsvEJ"
+      },
+      "source": [
+        "즉, 'S' = 2, 'Q' = 1 이라고 되어 있는데, `Q` + `Q` = `S` 가 된다 라고 학습해버린다는 것이다.\n",
+        "\n",
+        "그렇기 때문에, 독립적인 데이터는 별도의 column으로 분리하고,\n",
+        "각각의 컬럼에 해당 값에만 **True** 나머지는 **False**를 갖는다.\n",
+        "우리는 이것은 원 핫 인코딩 이라고 한다."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "z4b1hvsHtP1i",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "69e1f6f7-c62e-43cf-8cc7-b30b941ef02e"
+      },
+      "source": [
+        "train['Embarked'][:6]"
+      ],
+      "execution_count": 62,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0    S\n",
+              "1    C\n",
+              "2    S\n",
+              "3    S\n",
+              "4    S\n",
+              "5    Q\n",
+              "Name: Embarked, dtype: object"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 62
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "8z4xfBDnGTn5",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "95e10bdb-3e6b-4169-b3bd-77b324ab1a34"
+      },
+      "source": [
+        "train['Embarked_num'][:6]"
+      ],
+      "execution_count": 63,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0    2\n",
+              "1    0\n",
+              "2    2\n",
+              "3    2\n",
+              "4    2\n",
+              "5    1\n",
+              "Name: Embarked_num, dtype: int64"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 63
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "dde1PkxoHF6k",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 235
+        },
+        "outputId": "ca171ade-2921-440c-e2de-f571bd4928ba"
+      },
+      "source": [
+        "pd.get_dummies(train['Embarked_num'][:6])"
+      ],
+      "execution_count": 64,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>0</th>\n",
+              "      <th>1</th>\n",
+              "      <th>2</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>1</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>1</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>1</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>1</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>5</th>\n",
+              "      <td>0</td>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   0  1  2\n",
+              "0  0  0  1\n",
+              "1  1  0  0\n",
+              "2  0  0  1\n",
+              "3  0  0  1\n",
+              "4  0  0  1\n",
+              "5  0  1  0"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 64
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "U08rqF1xHV_2"
+      },
+      "source": [
+        "one_hot = pd.get_dummies(train['Embarked_num'][:6])"
+      ],
+      "execution_count": 65,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "IvNp1MEfHb8q"
+      },
+      "source": [
+        "one_hot.columns = ['C','Q','S']"
+      ],
+      "execution_count": 66,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "J5ULhrVnHphV",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 235
+        },
+        "outputId": "0783d8b8-fb83-4a4d-e5c3-cb228f7e485b"
+      },
+      "source": [
+        "one_hot"
+      ],
+      "execution_count": 67,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>C</th>\n",
+              "      <th>Q</th>\n",
+              "      <th>S</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>1</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>1</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>1</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>0</td>\n",
+              "      <td>0</td>\n",
+              "      <td>1</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>5</th>\n",
+              "      <td>0</td>\n",
+              "      <td>1</td>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   C  Q  S\n",
+              "0  0  0  1\n",
+              "1  1  0  0\n",
+              "2  0  0  1\n",
+              "3  0  0  1\n",
+              "4  0  0  1\n",
+              "5  0  1  0"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 67
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "J0gfDd2aHqi8"
+      },
+      "source": [
+        "위와 같이 column 을 분리시켜 **카테고리형 -> 수치형으로 변환**하면서 생기는 `수치형 값`의 관계를 끊어주어서 독립적인 형태로 바꾸어 준다"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "lrjiUR8AH7VF"
+      },
+      "source": [
+        "**원핫인코딩**은 카테고리 (계절, 항구, 성별, 종류, 한식/일식/중식...)의 특성을 가지는 column에 대해서 적용 "
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "BTAQgv8-ITTc"
+      },
+      "source": [
+        "## 전처리: Normalize (정규화)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "i4HbKYn-P95k"
+      },
+      "source": [
+        "column 간에 다른 **min**, **max** 값을 가지는 경우, 정규화를 통해 최소치/ 최대값의 척도를 맞추어 주는 것"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "CAqFJGvJQMZ0"
+      },
+      "source": [
+        "* 네이버 영화평점 (0점 ~ 10점): [2, 4, 6, 8, 10]\n",
+        "* 넷플릭스 영화평점 (0점 ~ 5점): [1, 2, 3, 4, 5]"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "qgkJSYdoQqaM"
+      },
+      "source": [
+        "movie = {'naver': [2, 4, 6, 8, 10], \n",
+        "         'netflix': [1, 2, 3, 4, 5]\n",
+        "         }"
+      ],
+      "execution_count": 68,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "s9JYILdPQko2",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 204
+        },
+        "outputId": "4f83bca3-137d-4199-d667-e3ef1ad3a109"
+      },
+      "source": [
+        "movie = pd.DataFrame(data=movie)\n",
+        "movie"
+      ],
+      "execution_count": 69,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>naver</th>\n",
+              "      <th>netflix</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>2</td>\n",
+              "      <td>1</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>4</td>\n",
+              "      <td>2</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>6</td>\n",
+              "      <td>3</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>8</td>\n",
+              "      <td>4</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>10</td>\n",
+              "      <td>5</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   naver  netflix\n",
+              "0      2        1\n",
+              "1      4        2\n",
+              "2      6        3\n",
+              "3      8        4\n",
+              "4     10        5"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 69
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "A1SKoNQ0JAm-"
+      },
+      "source": [
+        "from sklearn.preprocessing import MinMaxScaler"
+      ],
+      "execution_count": 70,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "90DHkLsPJHpQ"
+      },
+      "source": [
+        "min_max_scaler = MinMaxScaler()"
+      ],
+      "execution_count": 71,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Guo0lnCPJLHa"
+      },
+      "source": [
+        "min_max_movie = min_max_scaler.fit_transform(movie)"
+      ],
+      "execution_count": 72,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ONuB-MEZJQx5",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 204
+        },
+        "outputId": "439f8600-475f-41fd-8e03-d3ecece24fb3"
+      },
+      "source": [
+        "pd.DataFrame(min_max_movie, columns=['naver', 'netflix'])"
+      ],
+      "execution_count": 73,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>naver</th>\n",
+              "      <th>netflix</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>0.00</td>\n",
+              "      <td>0.00</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>0.25</td>\n",
+              "      <td>0.25</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>0.50</td>\n",
+              "      <td>0.50</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>0.75</td>\n",
+              "      <td>0.75</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>1.00</td>\n",
+              "      <td>1.00</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "   naver  netflix\n",
+              "0   0.00     0.00\n",
+              "1   0.25     0.25\n",
+              "2   0.50     0.50\n",
+              "3   0.75     0.75\n",
+              "4   1.00     1.00"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 73
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "PZ1c0BjtNil8"
+      },
+      "source": [
+        "## 표준화 (Standard Scaling)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "fYxdQQWiOZTU"
+      },
+      "source": [
+        "**평균이 0과 표준편차가 1**이 되도록 변환"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Wg0liGI4NWC0"
+      },
+      "source": [
+        "from sklearn.preprocessing import StandardScaler\n",
+        "\n",
+        "standard_scaler = StandardScaler()"
+      ],
+      "execution_count": 74,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "YiDlPgdISPYB"
+      },
+      "source": [
+        "샘플데이터를 생성"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "0DDITKe0SFHq"
+      },
+      "source": [
+        "x = np.arange(10)\n",
+        "# outlier 추가\n",
+        "x[9] = 1000"
+      ],
+      "execution_count": 75,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "jA1YvfUXSL_I",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "f7c6c452-d3b2-464c-989e-51f13bcbb1d6"
+      },
+      "source": [
+        "x.mean(), x.std()"
+      ],
+      "execution_count": 76,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(103.6, 298.8100399919654)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 76
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "hotC4eIcNdEA"
+      },
+      "source": [
+        "scaled = standard_scaler.fit_transform(x.reshape(-1,1))"
+      ],
+      "execution_count": 77,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "x_cxuk_uTCxo",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "29c83054-0272-4be1-cfbe-80d213a44235"
+      },
+      "source": [
+        "x.mean(), x.std()"
+      ],
+      "execution_count": 78,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(103.6, 298.8100399919654)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 78
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "2BHw3wL2TGTa",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "af5e2e0d-9fb5-4cdb-ed26-2acf7b0a1328"
+      },
+      "source": [
+        "scaled.mean(), scaled.std()"
+      ],
+      "execution_count": 79,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(4.4408920985006264e-17, 1.0)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 79
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "CLVLJQ1r228p",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "94c53420-dcfd-4dae-e5e4-be5007aff5b1"
+      },
+      "source": [
+        "round(scaled.mean(), 2), scaled.std()"
+      ],
+      "execution_count": 80,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(0.0, 1.0)"
+            ]
+          },
+          "metadata": {
+            "tags": []
+          },
+          "execution_count": 80
+        }
+      ]
+    }
+  ]
+}
